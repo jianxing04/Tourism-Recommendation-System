@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>attractions.json</file>
+        <file>attraction_internal.json</file>
+    </qresource>
+</RCC>
