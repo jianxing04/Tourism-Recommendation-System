@@ -2,18 +2,18 @@
 #include <QDebug>
 #include<QSqlError>
 #include<QDialog>
-BlogWindow::BlogWindow(QWidget *parent)
+BlogWindow::BlogWindow(QWidget *parent,QSqlDatabase DB)
     : QMainWindow(parent)
 {
     // 连接到 MySQL 数据库
-    db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("localhost");
-    db.setDatabaseName("qt_test");
-    db.setUserName("root");
-    db.setPassword("wjxmhcjlyAzg04");
+    // db = QSqlDatabase::addDatabase("QMYSQL");
+    // db.setHostName("localhost");
+    // db.setDatabaseName("qt_test");
+    // db.setUserName("root");
+    // db.setPassword("wjxmhcjlyAzg04");
+    db=DB;
     if (!db.open()) {
         qDebug() << "无法连接到数据库：" << db.lastError().text();
-        return;
     }
 
     // 创建滚动区域和布局
@@ -59,6 +59,10 @@ BlogWindow::~BlogWindow()
 
 void BlogWindow::loadBlogs(bool sortByLikes, const QString& searchQuery )
 {
+    if (!db.open()) {
+        qDebug() << "无法连接到数据库：" << db.lastError().text();
+        return;
+    }
     QSqlQuery query(db);
     QString sql = "SELECT blogs.id, users.userName, blogs.title, blogs.content, blogs.likes FROM blogs JOIN users ON blogs.userId = users.id";
     if (!searchQuery.isEmpty()) {
@@ -137,6 +141,10 @@ void BlogWindow::loadBlogs(bool sortByLikes, const QString& searchQuery )
 
 void BlogWindow::likeBlog(int blogId)
 {
+    if (!db.open()) {
+        qDebug() << "无法连接到数据库：" << db.lastError().text();
+        return;
+    }
     QSqlQuery query(db);
     query.prepare("UPDATE blogs SET likes = likes + 1 WHERE id = :id");
     query.bindValue(":id", blogId);
@@ -150,6 +158,10 @@ void BlogWindow::likeBlog(int blogId)
 
 void BlogWindow::addComment(int blogId, const QString& comment)
 {
+    if (!db.open()) {
+        qDebug() << "无法连接到数据库：" << db.lastError().text();
+        return;
+    }
     QSqlQuery query(db);
     query.prepare("INSERT INTO comments (blogId, comment) VALUES (:blog_id, :comment)");
     query.bindValue(":blog_id", blogId);
@@ -169,6 +181,10 @@ void BlogWindow::sortBlogsByLikes()
 
 void BlogWindow::viewComments(int blogId)
 {
+    if (!db.open()) {
+        qDebug() << "无法连接到数据库：" << db.lastError().text();
+        return;
+    }
     QSqlQuery query(db);
     query.prepare("SELECT comments.comment FROM comments JOIN blogs ON comments.blogId = blogs.id WHERE comments.blogId = :blog_id");
     query.bindValue(":blog_id", blogId);

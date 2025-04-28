@@ -1,7 +1,6 @@
 #include "loginwindow.h"
 
-LoginWindow::LoginWindow(QWidget *parent)
-    : QMainWindow(parent)
+LoginWindow::LoginWindow(QSqlDatabase DB)
 {
     // 创建输入框和按钮
     useraccountLineEdit = new QLineEdit();
@@ -32,11 +31,12 @@ LoginWindow::LoginWindow(QWidget *parent)
     connect(registerButton, &QPushButton::clicked, this, &LoginWindow::onRegisterButtonClicked);
 
     // 连接数据库
-    db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("localhost");
-    db.setDatabaseName("qt_test");
-    db.setUserName("root");
-    db.setPassword("wjxmhcjlyAzg04");
+    // db = QSqlDatabase::addDatabase("QMYSQL");
+    // db.setHostName("localhost");
+    // db.setDatabaseName("qt_test");
+    // db.setUserName("root");
+    // db.setPassword("wjxmhcjlyAzg04");
+    db=DB;
     if (!db.open()) {
         QMessageBox::critical(this, "数据库连接错误", db.lastError().text());
     }
@@ -47,13 +47,15 @@ LoginWindow::LoginWindow(QWidget *parent)
 
 LoginWindow::~LoginWindow()
 {
-    db.close();
+    //db.close();
+    //qDebug()<<"数据库已关闭";
 }
 
 void LoginWindow::onLoginButtonClicked()
 {
     QString useraccount = useraccountLineEdit->text();
     QString password = passwordLineEdit->text();
+    int flg=0;
 
     QSqlQuery query(db);
     query.prepare("SELECT * FROM users WHERE userAccount = :useraccount");
@@ -63,6 +65,11 @@ void LoginWindow::onLoginButtonClicked()
             QString storedPassword = query.value("userPassword").toString();
             if (storedPassword == password) {
                 QMessageBox::information(this, "登录成功", "欢迎登录！");
+                userId=query.value("id").toInt();
+                userName=query.value("userName").toString();
+                //qDebug()<<userId<<" "<<userName;
+                homepage=new HomePage(userName,userId,db);
+                flg=1;
             } else {
                 QMessageBox::warning(this, "密码错误", "密码不正确，请重试。");
             }
@@ -71,6 +78,11 @@ void LoginWindow::onLoginButtonClicked()
         }
     } else {
         QMessageBox::critical(this, "数据库查询错误", query.lastError().text());
+    }
+    if (flg){
+        db.close();
+        homepage->show();
+        this->close();
     }
 }
 

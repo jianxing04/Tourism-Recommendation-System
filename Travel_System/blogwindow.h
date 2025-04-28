@@ -17,7 +17,7 @@ class BlogWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    BlogWindow(QWidget *parent = nullptr);
+    BlogWindow(QWidget *parent = nullptr,QSqlDatabase DB=QSqlDatabase());
     ~BlogWindow();
 
 private slots:

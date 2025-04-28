@@ -12,11 +12,13 @@ SOURCES += \
     blogwindow.cpp \
     loginwindow.cpp \
     main.cpp \
+    homepage.cpp \
     registrationwindow.cpp
 
 HEADERS += \
     blogwindow.h \
     loginwindow.h \
+    homepage.h \
     registrationwindow.h
 
 # Default rules for deployment.

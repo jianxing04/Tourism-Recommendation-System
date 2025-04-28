@@ -12,14 +12,17 @@
 #include <QSqlError>
 #include <QMessageBox>
 #include "registrationwindow.h"
+#include "homepage.h"
 
 class LoginWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    LoginWindow(QWidget *parent = nullptr);
+    LoginWindow(QSqlDatabase DB);
     ~LoginWindow();
+    int userId;
+    QString userName;
 
 private slots:
     void onLoginButtonClicked();
@@ -32,5 +35,6 @@ private:
     QPushButton *registerButton;
     QSqlDatabase db;
     RegistrationWindow *registrationWindow;
+    HomePage *homepage;
 };
 #endif // LOGINWINDOW_H
