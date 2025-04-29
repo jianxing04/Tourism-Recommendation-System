@@ -28,7 +28,7 @@ public:
 private slots:
     void on_searchButton_clicked(const QString &searchQuery);
     void on_pathSearchButton_clicked(const QString &currentQuery, const QString &targetQuery, const QString &transport);
-
+    void on_multiPathSearchButton_clicked(const QStringList &attractionsList, const QString &transport, const QMap<QString, QMap<QString, int>> &mst);
 private:
     QGraphicsScene *scene;
     QMap<QString, QPair<int, QPointF>> attractionsWithPopularity;
@@ -46,5 +46,10 @@ private:
 
     bool eventFilter(QObject *obj, QEvent *event);
     void showInternalMap(const QString &attraction);
+
+    QMap<QString, QMap<QString, int>> buildMST(const QMap<QString, QMap<QString, QMap<QString, int>>> &graph, const QString &transport);
+    void dfs(const QMap<QString, QMap<QString, int>> &mst, const QString &current, const QSet<QString> &targets, QSet<QString> &visited, QVector<QString> &path, bool &foundAll);
+    int calculateTotalDistance(const QMap<QString, QMap<QString, int>> &graph, const QVector<QString> &path, const QString &transport);
+    //QVector<QString> prim(const QMap<QString, QMap<QString, QMap<QString, int>>> &graph, const QVector<QString> &nodes, const QString &transport);
 };
 #endif // MAINWINDOW_H
