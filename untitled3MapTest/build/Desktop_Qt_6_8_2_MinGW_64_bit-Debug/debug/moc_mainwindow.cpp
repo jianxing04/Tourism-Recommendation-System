@@ -47,9 +47,7 @@ static constexpr auto qt_meta_stringdata_ZN10MainWindowE = QtMocHelpers::stringD
     "targetQuery",
     "transport",
     "on_multiPathSearchButton_clicked",
-    "attractionsList",
-    "QMap<QString,QMap<QString,int>>",
-    "mst"
+    "attractionsList"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -71,12 +69,12 @@ Q_CONSTINIT static const uint qt_meta_data_ZN10MainWindowE[] = {
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
        1,    1,   32,    2, 0x08,    1 /* Private */,
        4,    3,   35,    2, 0x08,    3 /* Private */,
-       8,    3,   42,    2, 0x08,    7 /* Private */,
+       8,    2,   42,    2, 0x08,    7 /* Private */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::QString,    3,
     QMetaType::Void, QMetaType::QString, QMetaType::QString, QMetaType::QString,    5,    6,    7,
-    QMetaType::Void, QMetaType::QStringList, QMetaType::QString, 0x80000000 | 10,    9,    7,   11,
+    QMetaType::Void, QMetaType::QStringList, QMetaType::QString,    9,    7,
 
        0        // eod
 };
@@ -101,8 +99,7 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         // method 'on_multiPathSearchButton_clicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<const QStringList &, std::false_type>,
-        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
-        QtPrivate::TypeAndForceComplete<const QMap<QString,QMap<QString,int>> &, std::false_type>
+        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>
     >,
     nullptr
 } };
@@ -114,7 +111,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->on_searchButton_clicked((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 1: _t->on_pathSearchButton_clicked((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[3]))); break;
-        case 2: _t->on_multiPathSearchButton_clicked((*reinterpret_cast< std::add_pointer_t<QStringList>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2])),(*reinterpret_cast< std::add_pointer_t<QMap<QString,QMap<QString,int>>>>(_a[3]))); break;
+        case 2: _t->on_multiPathSearchButton_clicked((*reinterpret_cast< std::add_pointer_t<QStringList>>(_a[1])),(*reinterpret_cast< std::add_pointer_t<QString>>(_a[2]))); break;
         default: ;
         }
     }
