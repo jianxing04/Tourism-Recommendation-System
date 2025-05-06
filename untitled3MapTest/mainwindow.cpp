@@ -72,12 +72,14 @@ MainWindow::MainWindow(QWidget *parent)
     multiPathSearchLayout->addWidget(multiPathSearchButton);
     mainLayout->addLayout(multiPathSearchLayout);
 
+    // 创建推荐景点按钮
+    QPushButton *recommendButton = new QPushButton("推荐景点", centralWidget);
+    mainLayout->addWidget(recommendButton);
+
     // 加载景点数据
     loadAttractions();
     loadInternalAttractions();
     drawMap();
-
-    //QMap<QString, QMap<QString, int>> mst = buildMST(graph, transportComboBox->currentText());
 
     // 连接信号和槽
     connect(searchButton, &QPushButton::clicked, this, [=]() {
@@ -90,17 +92,6 @@ MainWindow::MainWindow(QWidget *parent)
         QString transport = transportComboBox->currentText();
         on_pathSearchButton_clicked(currentQuery, targetQuery, transport);
     });
-    // connect(multiPathSearchButton, &QPushButton::clicked, this, [=]() {
-    //     int numAttractions = numAttractionsLineEdit->text().toInt();
-    //     QString attractionsStr = attractionsLineEdit->text().trimmed();
-    //     QString transport = multiTransportComboBox->currentText();
-    //     QStringList attractionsList = attractionsStr.split(',');
-    //     if (attractionsList.size() != numAttractions) {
-    //         QMessageBox::information(this, "提示", "输入的景点个数与实际输入的景点名字数量不匹配。");
-    //         return;
-    //     }
-    //     on_multiPathSearchButton_clicked(attractionsList, transport, mst);
-    // });
     connect(multiPathSearchButton, &QPushButton::clicked, this, [=]() {
         int numAttractions = numAttractionsLineEdit->text().toInt();
         QString attractionsStr = attractionsLineEdit->text().trimmed();
@@ -112,6 +103,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
         on_multiPathSearchButton_clicked(attractionsList, transport);
     });
+    connect(recommendButton, &QPushButton::clicked, this, &MainWindow::on_recommendButton_clicked); // 连接推荐按钮信号
     graphicsView->viewport()->installEventFilter(this);
 }
 
@@ -406,126 +398,6 @@ void MainWindow::showInternalMap(const QString &attraction)
     internalMapDialog->exec();
 }
 
-// QVector<QString> MainWindow::prim(const QMap<QString, QMap<QString, QMap<QString, int>>> &graph, const QVector<QString> &nodes, const QString &transport)
-// {
-//     QVector<QString> path;
-//     if (nodes.isEmpty()) return path;
-
-//     QSet<QString> visited;
-//     QMap<QString, int> distances;
-//     QMap<QString, QString> previousNodes;
-
-//     for (const auto &node : nodes) {
-//         distances[node] = INT_MAX;
-//         previousNodes[node] = "";
-//     }
-
-//     QString startNode = nodes.first();
-//     distances[startNode] = 0;
-
-//     while (visited.size() < nodes.size()) {
-//         QString currentNode;
-//         int minDistance = INT_MAX;
-
-//         for (const auto &node : nodes) {
-//             if (!visited.contains(node) && distances[node] < minDistance) {
-//                 minDistance = distances[node];
-//                 currentNode = node;
-//             }
-//         }
-
-//         if (currentNode.isEmpty()) break;
-
-//         visited.insert(currentNode);
-//         path.append(currentNode);
-
-//         for (const auto &neighbor : nodes) {
-//             if (!visited.contains(neighbor) && graph[currentNode].contains(neighbor) && graph[currentNode][neighbor].contains(transport)) {
-//                 int newDistance = graph[currentNode][neighbor][transport];
-//                 if (newDistance < distances[neighbor]) {
-//                     distances[neighbor] = newDistance;
-//                     previousNodes[neighbor] = currentNode;
-//                 }
-//             }
-//         }
-//     }
-
-//     return path;
-// }
-
-// void MainWindow::on_multiPathSearchButton_clicked(const QStringList &attractionsList, const QString &transport)
-// {
-//     QVector<QString> nodes;
-//     for (const auto &attraction : attractionsList) {
-//         QString matchedAttraction = fuzzyMatchAttraction(attraction, attractionsWithPopularity);
-//         if (matchedAttraction.isEmpty()) {
-//             QMessageBox::information(this, "提示", QString("未找到匹配的景点: %1").arg(attraction));
-//             return;
-//         }
-//         nodes.append(matchedAttraction);
-//     }
-
-//     QVector<QString> path = prim(graph, nodes, transport);
-//     if (!path.isEmpty()) {
-//         QString pathStr = path.join(" -> ");
-//         int totalTime = calculateTotalTime(graph, path, transport);
-//         QMessageBox::information(this, "路径信息", QString("您的路径是：%1，所需时间为：%2").arg(pathStr).arg(totalTime));
-//     } else {
-//         QMessageBox::information(this, "提示", "未找到可行路径。");
-//     }
-// }
-
-// 构建最小生成树（Prim算法）
-// QMap<QString, QMap<QString, int>> MainWindow::buildMST(const QMap<QString, QMap<QString, QMap<QString, int>>> &graph, const QString &transport)
-// {
-//     QMap<QString, QMap<QString, int>> mst;
-//     QSet<QString> visited;
-//     QMap<QString, int> distances;
-//     QMap<QString, QString> previousNodes;
-
-//     auto allNodes = graph.keys();
-//     if (allNodes.isEmpty()) return mst;
-
-//     QString startNode = allNodes.first();
-//     for (const auto &node : allNodes) {
-//         distances[node] = INT_MAX;
-//         previousNodes[node] = "";
-//     }
-//     distances[startNode] = 0;
-
-//     while (visited.size() < allNodes.size()) {
-//         QString currentNode;
-//         int minDistance = INT_MAX;
-
-//         for (const auto &node : allNodes) {
-//             if (!visited.contains(node) && distances[node] < minDistance) {
-//                 minDistance = distances[node];
-//                 currentNode = node;
-//             }
-//         }
-
-//         if (currentNode.isEmpty()) break;
-
-//         visited.insert(currentNode);
-//         if (!previousNodes[currentNode].isEmpty()) {
-//             mst[previousNodes[currentNode]][currentNode] = minDistance;
-//             mst[currentNode][previousNodes[currentNode]] = minDistance;
-//         }
-
-//         for (const auto &neighbor : graph[currentNode].keys()) {
-//             if (!visited.contains(neighbor) && graph[currentNode][neighbor].contains(transport)) {
-//                 int newDistance = graph[currentNode][neighbor][transport];
-//                 if (newDistance < distances[neighbor]) {
-//                     distances[neighbor] = newDistance;
-//                     previousNodes[neighbor] = currentNode;
-//                 }
-//             }
-//         }
-//     }
-
-//     return mst;
-// }
-
 // 构建最小生成树（Prim算法）
 QMap<QString, QMap<QString, int>> MainWindow::buildMST(const QMap<QString, QMap<QString, QMap<QString, int>>> &graph, const QString &transport, const QStringList &targetAttractions)
 {
@@ -617,42 +489,6 @@ void MainWindow::dfs(const QMap<QString, QMap<QString, int>> &mst, const QString
     path.removeLast();
 }
 
-// void MainWindow::on_multiPathSearchButton_clicked(const QStringList &attractionsList, const QString &transport, const QMap<QString, QMap<QString, int>> &mst)
-// {
-//     QVector<QString> nodes;
-//     for (const auto &attraction : attractionsList) {
-//         QString matchedAttraction = fuzzyMatchAttraction(attraction, attractionsWithPopularity);
-//         if (matchedAttraction.isEmpty()) {
-//             QMessageBox::information(this, "提示", QString("未找到匹配的景点: %1").arg(attraction));
-//             return;
-//         }
-//         nodes.append(matchedAttraction);
-//     }
-
-//     //QSet<QString> targetSet = QSet<QString>::fromList(nodes.toList());
-//     QSet<QString> targetSet;
-//     for (const auto& node : nodes) {
-//         targetSet.insert(node);
-//     }
-
-//     QSet<QString> visited;
-//     QVector<QString> path;
-//     bool foundAll = false;
-
-//     // 可以选择任意一个目标景点作为起始点
-//     if (!nodes.isEmpty()) {
-//         dfs(mst, nodes.first(), targetSet, visited, path, foundAll);
-//     }
-
-//     if (foundAll) {
-//         QString pathStr = path.join(" -> ");
-//         int totalTime = calculateTotalDistance(mst, path, transport);
-//         QMessageBox::information(this, "路径信息", QString("您的路径是：%1，所需时间为：%2").arg(pathStr).arg(totalTime));
-//     } else {
-//         QMessageBox::information(this, "提示", "未找到可行路径。");
-//     }
-// }
-
 void MainWindow::on_multiPathSearchButton_clicked(const QStringList &attractionsList, const QString &transport)
 {
     QStringList validAttractions;
@@ -700,4 +536,61 @@ int MainWindow::calculateTotalDistance(const QMap<QString, QMap<QString, int>> &
         }
     }
     return totalDistance;
+}
+
+// 实现 top-k 排序算法
+QVector<QString> MainWindow::topKAttractions(int k)
+{
+    QVector<QPair<int, QString>> attractions;
+    for (const auto &attraction : attractionsWithPopularity.keys()) {
+        int popularity = attractionsWithPopularity[attraction].first;
+        attractions.append(qMakePair(popularity, attraction));
+    }
+
+    auto partition = [&](int left, int right) {
+        int pivot = attractions[right].first;
+        int i = left - 1;
+        for (int j = left; j < right; ++j) {
+            if (attractions[j].first > pivot) {
+                ++i;
+                std::swap(attractions[i], attractions[j]);
+            }
+        }
+        std::swap(attractions[i + 1], attractions[right]);
+        return i + 1;
+    };
+
+     std::function<void(int, int, int)> quickSelect = [&](int left, int right, int k) {
+        if (left == right) return;
+        int pivotIndex = partition(left, right);
+        if (pivotIndex == k) return;
+        else if (pivotIndex > k) quickSelect(left, pivotIndex - 1, k);
+        else quickSelect(pivotIndex + 1, right, k);
+    };
+
+    int n = attractions.size();
+    if (k > n) k = n;
+    quickSelect(0, n - 1, k - 1);
+
+    std::sort(attractions.begin(), attractions.begin() + k, [](const auto &a, const auto &b) {
+        return a.first > b.first;
+    });
+
+    QVector<QString> topK;
+    for (int i = 0; i < k; ++i) {
+        topK.append(attractions[i].second);
+    }
+    return topK;
+}
+
+// 处理推荐景点按钮点击事件
+void MainWindow::on_recommendButton_clicked()
+{
+    QVector<QString> top10 = topKAttractions(10);
+    QString message = "热度前10的景点：\n";
+    for (const auto &attraction : top10) {
+        int popularity = attractionsWithPopularity[attraction].first;
+        message += QString("%1 (%2)\n").arg(attraction).arg(popularity);
+    }
+    QMessageBox::information(this, "景点推荐", message);
 }
