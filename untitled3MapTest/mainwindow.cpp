@@ -377,6 +377,26 @@ void MainWindow::showInternalMap(const QString &attraction)
     QGraphicsView *internalView = new QGraphicsView(internalScene, internalMapDialog);
     internalLayout->addWidget(internalView);
 
+    // 创建内部地图的搜索区域
+    QHBoxLayout *internalSearchLayout = new QHBoxLayout();
+    QLineEdit *internalSearchLineEdit = new QLineEdit(internalMapDialog);
+    QPushButton *internalSearchButton = new QPushButton("搜索", internalMapDialog);
+    internalSearchLayout->addWidget(internalSearchLineEdit);
+    internalSearchLayout->addWidget(internalSearchButton);
+    internalLayout->addLayout(internalSearchLayout);
+
+    // 创建内部地图的路径搜索区域
+    QHBoxLayout *internalPathSearchLayout = new QHBoxLayout();
+    QLineEdit *internalCurrentLocationLineEdit = new QLineEdit(internalMapDialog);
+    QLineEdit *internalTargetLocationLineEdit = new QLineEdit(internalMapDialog);
+    QPushButton *internalPathSearchButton = new QPushButton("路径搜索", internalMapDialog);
+    internalPathSearchLayout->addWidget(new QLabel("当前位置:", internalMapDialog));
+    internalPathSearchLayout->addWidget(internalCurrentLocationLineEdit);
+    internalPathSearchLayout->addWidget(new QLabel("目标位置:", internalMapDialog));
+    internalPathSearchLayout->addWidget(internalTargetLocationLineEdit);
+    internalPathSearchLayout->addWidget(internalPathSearchButton);
+    internalLayout->addLayout(internalPathSearchLayout);
+
     // 绘制内部景点路径
     for (const auto &path : internalPaths) {
         QPointF startPoint = internalAttractions[path.first];
@@ -390,6 +410,19 @@ void MainWindow::showInternalMap(const QString &attraction)
         internalScene->addEllipse(point.x() - 5, point.y() - 5, 10, 10, QPen(Qt::black), QBrush(Qt::black));
         internalScene->addText(place)->setPos(point.x() + 5, point.y());
     }
+
+    // 连接内部地图的搜索按钮信号
+    connect(internalSearchButton, &QPushButton::clicked, this, [=]() {
+        QString searchQuery = internalSearchLineEdit->text().trimmed();
+        on_internalSearchButton_clicked(searchQuery, internalScene);
+    });
+
+    // 连接内部地图的路径搜索按钮信号
+    connect(internalPathSearchButton, &QPushButton::clicked, this, [=]() {
+        QString currentQuery = internalCurrentLocationLineEdit->text().trimmed();
+        QString targetQuery = internalTargetLocationLineEdit->text().trimmed();
+        on_internalPathSearchButton_clicked(currentQuery, targetQuery, internalScene);
+    });
 
     connect(internalMapDialog, &QDialog::finished, this, [=]() {
         this->show();
@@ -593,4 +626,46 @@ void MainWindow::on_recommendButton_clicked()
         message += QString("%1 (%2)\n").arg(attraction).arg(popularity);
     }
     QMessageBox::information(this, "景点推荐", message);
+}
+
+QString MainWindow::fuzzyMatchAttraction(const QString &query, const QMap<QString, QPointF> &attractions)
+{
+    // 实现模糊匹配逻辑，不考虑热度
+    for (const auto &key : attractions.keys()) {
+        if (key.contains(query, Qt::CaseInsensitive)) {
+            return key;
+        }
+    }
+    return "";
+}
+
+void MainWindow::on_internalSearchButton_clicked(const QString &searchQuery, QGraphicsScene *internalScene)
+{
+    QString matchedAttraction = fuzzyMatchAttraction(searchQuery, internalAttractions);
+
+    if (!matchedAttraction.isEmpty()) {
+        QPointF point = internalAttractions[matchedAttraction];
+        internalScene->addEllipse(point.x() - 10, point.y() - 10, 20, 20, QPen(Qt::red), QBrush(Qt::red, Qt::Dense4Pattern));
+    } else {
+        QMessageBox::information(this, "提示", "未找到匹配的景点。");
+    }
+}
+
+void MainWindow::on_internalPathSearchButton_clicked(const QString &currentQuery, const QString &targetQuery, QGraphicsScene *internalScene)
+{
+    QString currentLocation = fuzzyMatchAttraction(currentQuery, internalAttractions);
+    QString targetLocation = fuzzyMatchAttraction(targetQuery, internalAttractions);
+
+    if (currentLocation.isEmpty() || targetLocation.isEmpty()) {
+        QMessageBox::information(this, "提示", "未找到匹配的景点。");
+        return;
+    }
+
+    QVector<QString> path = dijkstra(internalGraph, currentLocation, targetLocation, "步行");
+    if (!path.isEmpty()) {
+        QString pathStr = path.join(" -> ");
+        QMessageBox::information(this, "路径信息", QString("您的路径是：%1").arg(pathStr));
+    } else {
+        QMessageBox::information(this, "提示", "未找到可行路径。");
+    }
 }

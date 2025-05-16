@@ -30,6 +30,8 @@ private slots:
     void on_pathSearchButton_clicked(const QString &currentQuery, const QString &targetQuery, const QString &transport);
     void on_multiPathSearchButton_clicked(const QStringList &attractionsList, const QString &transport);
     void on_recommendButton_clicked();
+    void on_internalSearchButton_clicked(const QString &searchQuery, QGraphicsScene *internalScene);
+    void on_internalPathSearchButton_clicked(const QString &currentQuery, const QString &targetQuery, QGraphicsScene *internalScene);
 private:
     QGraphicsScene *scene;
     QMap<QString, QPair<int, QPointF>> attractionsWithPopularity;
@@ -44,6 +46,7 @@ private:
     QVector<QString> dijkstra(const QMap<QString, QMap<QString, QMap<QString, int>>> &graph, const QString &start, const QString &end, const QString &transport);
     int calculateTotalTime(const QMap<QString, QMap<QString, QMap<QString, int>>> &graph, const QVector<QString> &path, const QString &transport);
     QString fuzzyMatchAttraction(const QString &query, const QMap<QString, QPair<int, QPointF>> &attractions);
+    QString fuzzyMatchAttraction(const QString &query, const QMap<QString, QPointF> &attractions);
 
     bool eventFilter(QObject *obj, QEvent *event);
     void showInternalMap(const QString &attraction);
