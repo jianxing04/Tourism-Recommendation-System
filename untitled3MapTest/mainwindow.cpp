@@ -48,12 +48,15 @@ MainWindow::MainWindow(QWidget *parent)
     QLineEdit *targetLocationLineEdit = new QLineEdit(centralWidget);
     QComboBox *transportComboBox = new QComboBox(centralWidget);
     transportComboBox->addItems({"步行", "自行车", "电动车", "自驾"});
+    QComboBox *strategyComBox=new QComboBox(centralWidget);
+    strategyComBox->addItems({"时间最短","距离最短"});
     QPushButton *pathSearchButton = new QPushButton("路径搜索", centralWidget);
     pathSearchLayout->addWidget(new QLabel("当前位置:", centralWidget));
     pathSearchLayout->addWidget(currentLocationLineEdit);
     pathSearchLayout->addWidget(new QLabel("目标位置:", centralWidget));
     pathSearchLayout->addWidget(targetLocationLineEdit);
     pathSearchLayout->addWidget(transportComboBox);
+    pathSearchLayout->addWidget(strategyComBox);
     pathSearchLayout->addWidget(pathSearchButton);
     mainLayout->addLayout(pathSearchLayout);
 
@@ -79,6 +82,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 加载景点数据
     loadAttractions();
     loadInternalAttractions();
+    loadFoodData(); // 加载美食数据
     drawMap();
 
     // 连接信号和槽
@@ -90,7 +94,8 @@ MainWindow::MainWindow(QWidget *parent)
         QString currentQuery = currentLocationLineEdit->text().trimmed();
         QString targetQuery = targetLocationLineEdit->text().trimmed();
         QString transport = transportComboBox->currentText();
-        on_pathSearchButton_clicked(currentQuery, targetQuery, transport);
+        QString strategy = strategyComBox->currentText();
+        on_pathSearchButton_clicked(currentQuery, targetQuery, transport,strategy);
     });
     connect(multiPathSearchButton, &QPushButton::clicked, this, [=]() {
         int numAttractions = numAttractionsLineEdit->text().toInt();
@@ -203,6 +208,28 @@ void MainWindow::loadInternalAttractions()
         internalGraph[end][start] = transportTimes;
 
         internalPaths.append(qMakePair(start, end));
+    }
+}
+
+void MainWindow::loadFoodData()
+{
+    QFile file(":/delicious_food.json");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::critical(this, "错误", "未找到 delicious_food.json 文件，请确保文件存在。");
+        return;
+    }
+
+    QTextStream in(&file);
+    QString jsonString = in.readAll();
+    file.close();
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
+    foodData = jsonDoc.array();
+
+    // 获取所有菜系并添加到下拉框中
+    for (const auto &food : foodData) {
+        QJsonObject foodObj = food.toObject();
+        cuisines.insert(foodObj["菜系"].toString());
     }
 }
 
@@ -327,7 +354,7 @@ void MainWindow::on_searchButton_clicked(const QString &searchQuery)
     }
 }
 
-void MainWindow::on_pathSearchButton_clicked(const QString &currentQuery, const QString &targetQuery, const QString &transport)
+void MainWindow::on_pathSearchButton_clicked(const QString &currentQuery, const QString &targetQuery, const QString &transport, const QString &strategy)
 {
     QString currentLocation = fuzzyMatchAttraction(currentQuery, attractionsWithPopularity);
     QString targetLocation = fuzzyMatchAttraction(targetQuery, attractionsWithPopularity);
@@ -336,12 +363,31 @@ void MainWindow::on_pathSearchButton_clicked(const QString &currentQuery, const 
         QMessageBox::information(this, "提示", "未找到匹配的景点。");
         return;
     }
+    QString t=transport;
+    //"时间最短","距离最短"
+    QVector<QString> tem={"步行", "自行车", "电动车", "自驾"};
+    if (strategy=="距离最短"){
+        int k=1;
+        for (int i=0;i<4;i++){
+            if (tem[i]==transport){
+                k=i;
+                break;
+            }
+        }
+        k=(k+2)%4;
+        t=tem[k];
+    }
 
-    QVector<QString> path = dijkstra(graph, currentLocation, targetLocation, transport);
+    QVector<QString> path = dijkstra(graph, currentLocation, targetLocation, t);
     if (!path.isEmpty()) {
         QString pathStr = path.join(" -> ");
-        int totalTime = calculateTotalTime(graph, path, transport);
-        QMessageBox::information(this, "路径信息", QString("您的路径是：%1，所需时间为：%2").arg(pathStr).arg(totalTime));
+        int totalTime = calculateTotalTime(graph, path, t);
+        if (t==transport){
+            QMessageBox::information(this, "路径信息", QString("您的路径是：%1，所需时间为：%2").arg(pathStr).arg(totalTime));
+        }
+        else{
+            QMessageBox::information(this, "路径信息", QString("您的路径是：%1，全程距离为：%2").arg(pathStr).arg(totalTime));
+        }
     } else {
         QMessageBox::information(this, "提示", "未找到可行路径。");
     }
@@ -381,7 +427,10 @@ void MainWindow::showInternalMap(const QString &attraction)
     QHBoxLayout *internalSearchLayout = new QHBoxLayout();
     QLineEdit *internalSearchLineEdit = new QLineEdit(internalMapDialog);
     QPushButton *internalSearchButton = new QPushButton("搜索", internalMapDialog);
+    QComboBox *targetComboBox = new QComboBox(internalMapDialog);
+    targetComboBox->addItems({"卫生间", "超市"});
     internalSearchLayout->addWidget(internalSearchLineEdit);
+    internalSearchLayout->addWidget(targetComboBox);
     internalSearchLayout->addWidget(internalSearchButton);
     internalLayout->addLayout(internalSearchLayout);
 
@@ -396,6 +445,28 @@ void MainWindow::showInternalMap(const QString &attraction)
     internalPathSearchLayout->addWidget(internalTargetLocationLineEdit);
     internalPathSearchLayout->addWidget(internalPathSearchButton);
     internalLayout->addLayout(internalPathSearchLayout);
+
+    // 创建内部地图的美食搜索区域
+    QHBoxLayout *internalFoodSearchLayout = new QHBoxLayout();
+    QLineEdit *internalFoodSearchLineEdit = new QLineEdit(internalMapDialog);
+    QPushButton *internalFoodSearchButton = new QPushButton("美食搜索", internalMapDialog);
+    internalFoodSearchLayout->addWidget(internalFoodSearchLineEdit);
+    internalFoodSearchLayout->addWidget(internalFoodSearchButton);
+    internalLayout->addLayout(internalFoodSearchLayout);
+
+    // 创建内部地图的美食推荐按钮
+    QHBoxLayout *internalFoodRecommendLayout = new QHBoxLayout();
+    QLabel *internalFoodRecommendLabel = new QLabel("推荐美食",internalMapDialog);
+    QComboBox *internalFoodRecommendComBox = new QComboBox(internalMapDialog);
+    internalFoodRecommendComBox->addItem("全部");
+    for (const auto &cuisine:cuisines){
+        internalFoodRecommendComBox->addItem(cuisine);
+    }
+    QPushButton *recommendFoodButton = new QPushButton("查看推荐", internalMapDialog);
+    internalFoodRecommendLayout->addWidget(internalFoodRecommendLabel);
+    internalFoodRecommendLayout->addWidget(internalFoodRecommendComBox);
+    internalFoodRecommendLayout->addWidget(recommendFoodButton);
+    internalLayout->addLayout(internalFoodRecommendLayout);
 
     // 绘制内部景点路径
     for (const auto &path : internalPaths) {
@@ -414,14 +485,27 @@ void MainWindow::showInternalMap(const QString &attraction)
     // 连接内部地图的搜索按钮信号
     connect(internalSearchButton, &QPushButton::clicked, this, [=]() {
         QString searchQuery = internalSearchLineEdit->text().trimmed();
-        on_internalSearchButton_clicked(searchQuery, internalScene);
+        QString targetType = targetComboBox->currentText();
+        on_internalSearchButton_clicked(searchQuery,internalScene,targetType);
     });
 
     // 连接内部地图的路径搜索按钮信号
     connect(internalPathSearchButton, &QPushButton::clicked, this, [=]() {
         QString currentQuery = internalCurrentLocationLineEdit->text().trimmed();
         QString targetQuery = internalTargetLocationLineEdit->text().trimmed();
-        on_internalPathSearchButton_clicked(currentQuery, targetQuery, internalScene);
+        on_internalPathSearchButton_clicked(currentQuery, targetQuery);
+    });
+
+    // 连接内部地图的美食搜索按钮信号
+    connect(internalFoodSearchButton, &QPushButton::clicked, this, [=]() {
+        QString foodName;
+        foodName=internalFoodSearchLineEdit->text().trimmed();
+        on_internalFoodSearchButton_clicked(foodName);
+    });
+
+    connect(recommendFoodButton,&QPushButton::clicked,this,[=](){
+        QString type=internalFoodRecommendComBox->currentText();
+        on_cuisineRecommendButton_clicked(type);
     });
 
     connect(internalMapDialog, &QDialog::finished, this, [=]() {
@@ -429,6 +513,57 @@ void MainWindow::showInternalMap(const QString &attraction)
     });
 
     internalMapDialog->exec();
+}
+
+//处理内部地图美食搜索
+void MainWindow::on_internalFoodSearchButton_clicked(const QString &foodName)
+{
+    for (const auto &food : foodData) {
+        QJsonObject foodObj = food.toObject();
+        if (foodObj["名字"].toString() == foodName) {
+            QString message = QString("菜名：%1\n菜系：%2\n热度：%3\n位置：%4")
+                                  .arg(foodObj["名字"].toString())
+                                  .arg(foodObj["菜系"].toString())
+                                  .arg(foodObj["热度"].toInt())
+                                  .arg(foodObj["位置"].toString());
+            QMessageBox::information(this, "美食信息", message);
+            return;
+        }
+    }
+    QMessageBox::information(this, "提示", "未找到匹配的美食。");
+}
+
+// 处理推荐菜系按钮点击事件
+void MainWindow::on_cuisineRecommendButton_clicked(const QString &type)
+{
+    QString selectedCuisine = type;
+
+    QVector<QPair<int, QJsonObject>> filteredFoods;
+    for (const auto &food : foodData) {
+        QJsonObject foodObj = food.toObject();
+        if (selectedCuisine == "全部" || foodObj["菜系"].toString() == selectedCuisine) {
+            filteredFoods.append(qMakePair(foodObj["热度"].toInt(), foodObj));
+        }
+    }
+
+    std::sort(filteredFoods.begin(), filteredFoods.end(), [](const auto &a, const auto &b) {
+        return a.first > b.first;
+    });
+
+    QString message = QString("推荐 %1 美食：\n").arg(selectedCuisine);
+    int count = 0;
+    for (const auto &pair : filteredFoods) {
+        if (count >= 10) break;
+        QJsonObject foodObj = pair.second;
+        message += QString("菜名：%1，菜系：%2，热度：%3，位置：%4\n")
+                       .arg(foodObj["名字"].toString())
+                       .arg(foodObj["菜系"].toString())
+                       .arg(foodObj["热度"].toInt())
+                       .arg(foodObj["位置"].toString());
+        count++;
+    }
+
+    QMessageBox::information(this, "美食推荐", message);
 }
 
 // 构建最小生成树（Prim算法）
@@ -555,22 +690,6 @@ void MainWindow::on_multiPathSearchButton_clicked(const QStringList &attractions
     }
 }
 
-// 计算路径的总距离
-int MainWindow::calculateTotalDistance(const QMap<QString, QMap<QString, int>> &graph, const QVector<QString> &path, const QString &transport)
-{
-    int totalDistance = 0;
-    for (int i = 0; i < path.size() - 1; ++i) {
-        const QString &start = path[i];
-        const QString &end = path[i + 1];
-        if (graph[start].contains(end)) {
-            totalDistance += graph[start][end];
-        } else {
-            return INT_MAX;
-        }
-    }
-    return totalDistance;
-}
-
 // 实现 top-k 排序算法
 QVector<QString> MainWindow::topKAttractions(int k)
 {
@@ -639,19 +758,56 @@ QString MainWindow::fuzzyMatchAttraction(const QString &query, const QMap<QStrin
     return "";
 }
 
-void MainWindow::on_internalSearchButton_clicked(const QString &searchQuery, QGraphicsScene *internalScene)
+// void MainWindow::on_internalSearchButton_clicked(const QString &searchQuery, QGraphicsScene *internalScene)
+// {
+//     QString matchedAttraction = fuzzyMatchAttraction(searchQuery, internalAttractions);
+
+//     if (!matchedAttraction.isEmpty()) {
+//         QPointF point = internalAttractions[matchedAttraction];
+//         internalScene->addEllipse(point.x() - 10, point.y() - 10, 20, 20, QPen(Qt::red), QBrush(Qt::red, Qt::Dense4Pattern));
+//     } else {
+//         QMessageBox::information(this, "提示", "未找到匹配的景点。");
+//     }
+// }
+
+void MainWindow::on_internalSearchButton_clicked(const QString &searchQuery, QGraphicsScene *internalScene, const QString &targetType)
 {
     QString matchedAttraction = fuzzyMatchAttraction(searchQuery, internalAttractions);
 
     if (!matchedAttraction.isEmpty()) {
+        QPointF startPoint = internalAttractions[matchedAttraction];
         QPointF point = internalAttractions[matchedAttraction];
         internalScene->addEllipse(point.x() - 10, point.y() - 10, 20, 20, QPen(Qt::red), QBrush(Qt::red, Qt::Dense4Pattern));
+        QVector<QPair<double, QString>> distances;
+        for (const auto &place : internalAttractions.keys()) {
+            if (place.contains(targetType)) {
+                QPointF endPoint = internalAttractions[place];
+                double distance = QLineF(startPoint, endPoint).length();
+                distances.append(qMakePair(distance, place));
+            }
+        }
+
+        std::sort(distances.begin(), distances.end(), [](const auto &a, const auto &b) {
+            return a.first < b.first;
+        });
+
+        QString message = QString("距离 %1 最近的三个 %2 及距离：\n").arg(matchedAttraction).arg(targetType);
+        int count = 0;
+        for (const auto &pair : distances) {
+            if (count >= 3) break;
+            QPointF point = internalAttractions[pair.second];
+            internalScene->addEllipse(point.x() - 5, point.y() - 5, 10, 10, QPen(Qt::green), QBrush(Qt::green));
+            message += QString("%1: %2\n").arg(pair.second).arg(pair.first);
+            count++;
+        }
+
+        QMessageBox::information(this, "距离信息", message);
     } else {
         QMessageBox::information(this, "提示", "未找到匹配的景点。");
     }
 }
 
-void MainWindow::on_internalPathSearchButton_clicked(const QString &currentQuery, const QString &targetQuery, QGraphicsScene *internalScene)
+void MainWindow::on_internalPathSearchButton_clicked(const QString &currentQuery, const QString &targetQuery)
 {
     QString currentLocation = fuzzyMatchAttraction(currentQuery, internalAttractions);
     QString targetLocation = fuzzyMatchAttraction(targetQuery, internalAttractions);

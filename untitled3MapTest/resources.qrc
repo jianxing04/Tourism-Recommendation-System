@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>attractions.json</file>
         <file>attraction_internal.json</file>
+        <file>delicious_food.json</file>
     </qresource>
 </RCC>

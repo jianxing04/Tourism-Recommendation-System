@@ -105,7 +105,8 @@ compiler_rcc_clean:
 debug/qrc_resources.cpp: ../../resources.qrc \
 		D:/QT/6.8.2/mingw_64/bin/rcc.exe \
 		../../attraction_internal.json \
-		../../attractions.json
+		../../attractions.json \
+		../../delicious_food.json
 	D:\QT\6.8.2\mingw_64\bin\rcc.exe -name resources --no-zstd ..\..\resources.qrc -o debug\qrc_resources.cpp
 
 compiler_moc_predefs_make_all: debug/moc_predefs.h
@@ -361,6 +362,7 @@ debug/moc_mainwindow.cpp: ../../mainwindow.h \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qdialog.h \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		D:/QT/6.8.2/mingw_64/include/QtGui/QMouseEvent \
+		D:/QT/6.8.2/mingw_64/include/QtWidgets/QDialog \
 		debug/moc_predefs.h \
 		D:/QT/6.8.2/mingw_64/bin/moc.exe
 	D:\QT\6.8.2\mingw_64\bin\moc.exe $(DEFINES) --include D:/My_Codes/Qt_codes/untitled3MapTest/build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/debug/moc_predefs.h -ID:/QT/6.8.2/mingw_64/mkspecs/win32-g++ -ID:/My_Codes/Qt_codes/untitled3MapTest -ID:/QT/6.8.2/mingw_64/include -ID:/QT/6.8.2/mingw_64/include/QtWidgets -ID:/QT/6.8.2/mingw_64/include/QtGui -ID:/QT/6.8.2/mingw_64/include/QtCore -I. -ID:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++ -ID:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/x86_64-w64-mingw32 -ID:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++/backward -ID:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include -ID:/QT/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include-fixed -ID:/QT/Tools/mingw1310_64/x86_64-w64-mingw32/include ..\..\mainwindow.h -o debug\moc_mainwindow.cpp
@@ -627,6 +629,7 @@ debug/main.o: ../../main.cpp ../../mainwindow.h \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qdialog.h \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		D:/QT/6.8.2/mingw_64/include/QtGui/QMouseEvent \
+		D:/QT/6.8.2/mingw_64/include/QtWidgets/QDialog \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/QApplication \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\main.o ..\..\main.cpp
@@ -875,6 +878,7 @@ debug/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qdialog.h \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qdialogbuttonbox.h \
 		D:/QT/6.8.2/mingw_64/include/QtGui/QMouseEvent \
+		D:/QT/6.8.2/mingw_64/include/QtWidgets/QDialog \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/QVBoxLayout \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qboxlayout.h \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/qlayout.h \
