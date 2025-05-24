@@ -30,12 +30,6 @@ LoginWindow::LoginWindow(QSqlDatabase DB)
     connect(loginButton, &QPushButton::clicked, this, &LoginWindow::onLoginButtonClicked);
     connect(registerButton, &QPushButton::clicked, this, &LoginWindow::onRegisterButtonClicked);
 
-    // 连接数据库
-    // db = QSqlDatabase::addDatabase("QMYSQL");
-    // db.setHostName("localhost");
-    // db.setDatabaseName("qt_test");
-    // db.setUserName("root");
-    // db.setPassword("wjxmhcjlyAzg04");
     db=DB;
     if (!db.open()) {
         QMessageBox::critical(this, "数据库连接错误", db.lastError().text());
@@ -47,8 +41,6 @@ LoginWindow::LoginWindow(QSqlDatabase DB)
 
 LoginWindow::~LoginWindow()
 {
-    //db.close();
-    //qDebug()<<"数据库已关闭";
 }
 
 void LoginWindow::onLoginButtonClicked()

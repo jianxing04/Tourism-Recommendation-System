@@ -1,0 +1,12 @@
+debug/blogwindow.o
+debug/loginwindow.o
+debug/main.o
+debug/homepage.o
+debug/mainwindow.o
+debug/registrationwindow.o
+debug/qrc_resources.o
+debug/moc_blogwindow.o
+debug/moc_loginwindow.o
+debug/moc_homepage.o
+debug/moc_mainwindow.o
+debug/moc_registrationwindow.o

@@ -7,12 +7,6 @@
 BlogWindow::BlogWindow(QWidget *parent,QSqlDatabase DB)
     : QMainWindow(parent)
 {
-    // 连接到 MySQL 数据库
-    // db = QSqlDatabase::addDatabase("QMYSQL");
-    // db.setHostName("localhost");
-    // db.setDatabaseName("qt_test");
-    // db.setUserName("root");
-    // db.setPassword("wjxmhcjlyAzg04");
     db=DB;
     if (!db.open()) {
         qDebug() << "无法连接到数据库：" << db.lastError().text();

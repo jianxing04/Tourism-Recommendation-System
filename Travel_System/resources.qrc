@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>attraction_internal.json</file>
+        <file>attractions.json</file>
+        <file>delicious_food.json</file>
+    </qresource>
+</RCC>

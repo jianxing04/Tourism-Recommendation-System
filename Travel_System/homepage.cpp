@@ -23,6 +23,8 @@ HomePage::HomePage(const QString &username,const int &userid,QSqlDatabase DB) {
     btnSaveBlog=new QPushButton("发送",this);
     btnEnterBlog=new QPushButton("进入博客区",this);
 
+    btnEnterMap=new QPushButton("进入地图",this);
+
     QHBoxLayout *titleLayout=new QHBoxLayout();
     titleLayout->addWidget(lbBlogTitle);
     titleLayout->addWidget(BlogTitleLineEdit);
@@ -37,17 +39,18 @@ HomePage::HomePage(const QString &username,const int &userid,QSqlDatabase DB) {
     rightLayout->addLayout(contentLayout);
     rightLayout->addWidget(btnSaveBlog);
     rightLayout->addWidget(btnEnterBlog);
+    rightLayout->addWidget(btnEnterMap);
 
     QWidget *centralWidget=new QWidget(this);
     centralWidget->setLayout(rightLayout);
-    //mainLayout=new QHBoxLayout;
-    //mainLayout->addLayout(rightLayout);
 
     setCentralWidget(centralWidget);
     blogWindow=new BlogWindow(this,db);
+    travelMap=new MainWindow();
 
     connect(btnSaveBlog,&QPushButton::clicked,this,&HomePage::onBtnSaveBlog);
     connect(btnEnterBlog,&QPushButton::clicked,this,&HomePage::onBtnEnterBlog);
+    connect(btnEnterMap,&QPushButton::clicked,this,&HomePage::onBtnEnterMap);
 }
 HomePage::~HomePage(){
 
@@ -76,4 +79,8 @@ void HomePage::onBtnSaveBlog(){
 
 void HomePage::onBtnEnterBlog(){
     blogWindow->show();
+}
+
+void HomePage::onBtnEnterMap(){
+    travelMap->show();
 }

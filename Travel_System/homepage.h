@@ -7,6 +7,7 @@
 #include<QHBoxLayout>
 #include<QSqlDatabase>
 #include"blogwindow.h"
+#include"mainwindow.h"
 #include<QLineEdit>
 #include<QPushButton>
 
@@ -22,8 +23,10 @@ public:
 private slots:
     void onBtnSaveBlog();
     void onBtnEnterBlog();
+    void onBtnEnterMap();
 private:
     BlogWindow *blogWindow;
+    MainWindow *travelMap;
     QLabel *welcome;
     QLabel *lbBlogTitle;
     QLabel *lbBlogContent;
@@ -31,10 +34,7 @@ private:
     QLineEdit *BlogContentLineEdit;
     QPushButton *btnSaveBlog;
     QPushButton *btnEnterBlog;
-    //QHBoxLayout *titleLayout;
-    //QHBoxLayout *contentLayout;
-    //QVBoxLayout *rightLayout;
-    //QHBoxLayout *mainLayout;
+    QPushButton *btnEnterMap;
     QSqlDatabase db;
 };
 

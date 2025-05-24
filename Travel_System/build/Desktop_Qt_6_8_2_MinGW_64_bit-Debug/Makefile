@@ -424,7 +424,8 @@ Makefile: ../../Travel_System.pro D:/QT/6.8.2/mingw_64/mkspecs/win32-g++/qmake.c
 		D:/QT/6.8.2/mingw_64/lib/Qt6Sql.prl \
 		D:/QT/6.8.2/mingw_64/lib/Qt6Core.prl \
 		D:/QT/6.8.2/mingw_64/lib/Qt6EntryPoint.prl \
-		D:/QT/6.8.2/mingw_64/mkspecs/features/build_pass.prf
+		D:/QT/6.8.2/mingw_64/mkspecs/features/build_pass.prf \
+		../../resources.qrc
 	$(QMAKE) -o Makefile ..\..\Travel_System.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 D:/QT/6.8.2/mingw_64/mkspecs/features/spec_pre.prf:
 D:/QT/6.8.2/mingw_64/mkspecs/features/device_config.prf:
@@ -781,6 +782,7 @@ D:/QT/6.8.2/mingw_64/lib/Qt6Sql.prl:
 D:/QT/6.8.2/mingw_64/lib/Qt6Core.prl:
 D:/QT/6.8.2/mingw_64/lib/Qt6EntryPoint.prl:
 D:/QT/6.8.2/mingw_64/mkspecs/features/build_pass.prf:
+../../resources.qrc:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ..\..\Travel_System.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 

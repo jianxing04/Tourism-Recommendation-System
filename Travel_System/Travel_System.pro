@@ -13,15 +13,20 @@ SOURCES += \
     loginwindow.cpp \
     main.cpp \
     homepage.cpp \
+    mainwindow.cpp \
     registrationwindow.cpp
 
 HEADERS += \
     blogwindow.h \
     loginwindow.h \
     homepage.h \
+    mainwindow.h \
     registrationwindow.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc
