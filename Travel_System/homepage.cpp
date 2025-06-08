@@ -1,6 +1,7 @@
 #include "homepage.h"
 #include<QMessageBox>
 #include<QSqlError>
+#include<QFile>
 
 HomePage::HomePage(const QString &username,const int &userid,QSqlDatabase DB) {
     userName=username;
@@ -59,6 +60,52 @@ HomePage::~HomePage(){
 void HomePage::onBtnSaveBlog(){
     QString title=BlogTitleLineEdit->text();
     QString content=BlogContentLineEdit->text();
+
+    QPair<QString, QMap<QChar, QString>> tem;
+    tem=blogWindow->huffmanCompress(content);
+    // 处理JSON文件追加
+    QFile file("blogs.json");
+    QJsonArray blogArray;
+
+    // 读取现有内容
+    if (file.exists() && file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QByteArray existingData = file.readAll();
+        file.close();
+
+        QJsonParseError parseError;
+        QJsonDocument existingDoc = QJsonDocument::fromJson(existingData, &parseError);
+
+        if (parseError.error == QJsonParseError::NoError && existingDoc.isArray()) {
+            blogArray = existingDoc.array();
+        }
+    }
+
+    // 创建新博客条目
+    QJsonObject blogObject;
+    blogObject["compressedContent"] = tem.first;
+    qDebug()<<tem.first;
+    // 转换哈夫曼表
+    QJsonObject huffmanTableObject;
+    for (auto it = tem.second.constBegin(); it != tem.second.constEnd(); ++it) {
+        huffmanTableObject[QString(it.key())] = it.value();
+        qDebug()<<QString(it.key())<<":"<<it.value();
+    }
+    blogObject["huffmanTable"] = huffmanTableObject;
+
+    // 添加到数组
+    blogArray.append(blogObject);
+
+    // 写回文件
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        QJsonDocument jsonDoc(blogArray);
+        QTextStream out(&file);
+        out << jsonDoc.toJson(QJsonDocument::Indented);
+        qDebug() << "添加评论成功";
+        file.close();
+    } else {
+        qDebug() << "无法打开文件：" << file.errorString();
+    }
+
     int likes=0;
     if (!db.open()) {
         qDebug() << "无法连接到数据库：" << db.lastError().text();

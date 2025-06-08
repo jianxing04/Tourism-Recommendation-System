@@ -130,7 +130,8 @@ debug/qrc_resources.cpp: ../../resources.qrc \
 		D:/QT/6.8.2/mingw_64/bin/rcc.exe \
 		../../attraction_internal.json \
 		../../attractions.json \
-		../../delicious_food.json
+		../../delicious_food.json \
+		blogs.json
 	D:\QT\6.8.2\mingw_64\bin\rcc.exe -name resources --no-zstd ..\..\resources.qrc -o debug\qrc_resources.cpp
 
 compiler_moc_predefs_make_all: debug/moc_predefs.h
@@ -2465,7 +2466,10 @@ debug/homepage.o: ../../homepage.cpp ../../homepage.h \
 		D:/QT/6.8.2/mingw_64/include/QtGui/QMouseEvent \
 		D:/QT/6.8.2/mingw_64/include/QtWidgets/QDialog \
 		D:/QT/6.8.2/mingw_64/include/QtSql/QSqlError \
-		D:/QT/6.8.2/mingw_64/include/QtSql/qsqlerror.h
+		D:/QT/6.8.2/mingw_64/include/QtSql/qsqlerror.h \
+		D:/QT/6.8.2/mingw_64/include/QtCore/QFile \
+		D:/QT/6.8.2/mingw_64/include/QtCore/qfile.h \
+		D:/QT/6.8.2/mingw_64/include/QtCore/qfiledevice.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\homepage.o ..\..\homepage.cpp
 
 debug/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \

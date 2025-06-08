@@ -28,6 +28,7 @@ class BlogWindow : public QMainWindow
 public:
     BlogWindow(QWidget *parent = nullptr,QSqlDatabase DB=QSqlDatabase());
     ~BlogWindow();
+    QPair<QString, QMap<QChar, QString>> huffmanCompress(const QString& input);
 
 private slots:
     void loadBlogs(bool sortByLikes = false, const QString& searchQuery = "");
@@ -47,7 +48,6 @@ private:
     QPushButton *searchButton;
     HuffmanNode* buildHuffmanTree(const QString& input);
     void generateCodes(HuffmanNode* root, QString str, QMap<QChar, QString>& huffmanCode);
-    QPair<QString, QMap<QChar, QString>> huffmanCompress(const QString& input);
     QString huffmanDecompress(const QString& compressed, const QMap<QChar, QString>& huffmanCode);
     int editDistance(const QString& s1, const QString& s2);
     std::vector<int> computeLPS(const QString& pattern);

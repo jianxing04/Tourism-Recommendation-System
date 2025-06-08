@@ -135,6 +135,7 @@ QString BlogWindow::huffmanDecompress(const QString& compressed, const QMap<QCha
     return decompressed;
 }
 
+//编辑距离
 int BlogWindow::editDistance(const QString& s1, const QString& s2) {
     int m = s1.length();
     int n = s2.length();

@@ -3,5 +3,6 @@
         <file>attraction_internal.json</file>
         <file>attractions.json</file>
         <file>delicious_food.json</file>
+        <file>build/Desktop_Qt_6_8_2_MinGW_64_bit-Debug/blogs.json</file>
     </qresource>
 </RCC>
